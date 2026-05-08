@@ -62,18 +62,6 @@ const osThreadAttr_t IMUTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for LoRaTask */
-osThreadId_t LoRaTaskHandle;
-const osThreadAttr_t LoRaTask_attributes = {
-  .name = "LoRaTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
-/* Definitions for imuQueue */
-osMessageQueueId_t imuQueueHandle;
-const osMessageQueueAttr_t imuQueue_attributes = {
-  .name = "imuQueue"
-};
 /* USER CODE BEGIN PV */
 /* USER CODE END PV */
 
@@ -84,7 +72,6 @@ static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 void StartDefaultTask(void *argument);
 void StartTIMUTask(void *argument);
-void StartLoRaTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 /* USER CODE END PFP */
@@ -125,6 +112,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_Delay(2000);
   App_Init();
+
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -142,10 +130,6 @@ int main(void)
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* creation of imuQueue */
-  imuQueueHandle = osMessageQueueNew (16, sizeof(IMUData_t), &imuQueue_attributes);
-
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -156,9 +140,6 @@ int main(void)
 
   /* creation of IMUTask */
   IMUTaskHandle = osThreadNew(StartTIMUTask, NULL, &IMUTask_attributes);
-
-  /* creation of LoRaTask */
-  LoRaTaskHandle = osThreadNew(StartLoRaTask, NULL, &LoRaTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -175,6 +156,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
 //	  App_Loop();
@@ -381,7 +363,8 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+//	  LoRa_Process();
+	      osDelay(2000);
   }
   /* USER CODE END 5 */
 }
@@ -404,29 +387,6 @@ void StartTIMUTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartTIMUTask */
-}
-
-/* USER CODE BEGIN Header_StartLoRaTask */
-/**
-* @brief Function implementing the LoRaTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartLoRaTask */
-void StartLoRaTask(void *argument)
-{
-  /* USER CODE BEGIN StartLoRaTask */
-	IMUData_t data;
-  /* Infinite loop */
-  for(;;)
-  {
-	  if (osMessageQueueGet(imuQueueHandle, &data, NULL, osWaitForever) == osOK)
-	          {
-	              LoRa_Process(&data);
-	          }
-    osDelay(2000);
-  }
-  /* USER CODE END StartLoRaTask */
 }
 
 /**

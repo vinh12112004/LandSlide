@@ -4,7 +4,7 @@
  *  Created on: May 2, 2026
  *      Author: vinh
  */
-#include "../Sensors/Inc/AS32.h"
+#include "AS32.h"
 
 AS32::AS32(IGPIO* p_m0, IGPIO* p_m1, IGPIO* p_aux, IUART* p_uart)
     : m0(p_m0), m1(p_m1), aux(p_aux), uart(p_uart) {

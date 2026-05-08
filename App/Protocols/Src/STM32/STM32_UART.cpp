@@ -4,7 +4,7 @@
  *  Created on: May 2, 2026
  *      Author: vinh
  */
-#include "../Inc/STM32/STM32_UART.h"
+#include "STM32_UART.h"
 
 STM32_UART::STM32_UART(UART_HandleTypeDef* h) : huart(h) {
 }

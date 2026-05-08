@@ -18,7 +18,7 @@ typedef struct {
 void App_Init(void);
 void App_Loop(void);
 void IMU_Process(void);
-void LoRa_Process(IMUData_t *data);
+void LoRa_Process();
 #ifdef __cplusplus
 }
 #endif

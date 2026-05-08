@@ -4,18 +4,18 @@
  *  Created on: Apr 28, 2026
  *      Author: vinh
  */
-#include "../app_main.h"
+#include "app_main.h"
 
 #include <string.h>
 #include "iostream"
 #include "cmsis_os.h"
 #include "queue.h"
 
-#include "../Sensors/Inc/AS32.h"
-#include "../Sensors/Inc/MPU6500.h"
-#include "Protocols/Inc/STM32/STM32_GPIO.h"
-#include "Protocols/Inc/STM32/STM32_SPI.h"
-#include "Protocols/Inc/STM32/STM32_UART.h"
+#include "AS32.h"
+#include "MPU6500.h"
+#include "STM32_GPIO.h"
+#include "STM32_SPI.h"
+#include "STM32_UART.h"
 extern UART_HandleTypeDef huart1;
 extern SPI_HandleTypeDef hspi1;
 
@@ -27,10 +27,9 @@ float az;
 float gx;
 float gy;
 float gz;
-
+IMUData_t data;
 const char* msg = "pablo11\r\n";
 //queue
-extern osMessageQueueId_t imuQueueHandle;
 // AS32
 STM32_GPIO pin_m0(GPIOB, GPIO_PIN_0);
 STM32_GPIO pin_m1(GPIOB, GPIO_PIN_1);
@@ -81,7 +80,6 @@ void IMU_Process()
     auto acc = imu.GetAccel();
     auto gyro = imu.GetGyro();
     ax = acc.x / 16384.0f;
-    IMUData_t data;
     data.ax = acc.x / 16384.0f;
     data.ay = acc.y / 16384.0f;
     data.az = acc.z / 16384.0f;
@@ -92,15 +90,32 @@ void IMU_Process()
 
 //    osMessageQueuePut(imuQueueHandle, &data, 0, 0);
 }
-void LoRa_Process(IMUData_t *data)
+void LoRa_Process()
 {
     char buf[128];
+    IMUData_t local = data;
+    int ax_i = (int)(local.ax * 100);
+    int ay_i = (int)(local.ay * 100);
+    int az_i = (int)(local.az * 100);
+
+    int gx_i = (int)(local.gx * 100);
+    int gy_i = (int)(local.gy * 100);
+    int gz_i = (int)(local.gz * 100);
 
     int len = sprintf(buf,
-        "AX:%.2d AY:%.2d AZ:%.2d | GX:%.2d GY:%.2d GZ:%.2d\r\n",
-        data->ax, data->ay, data->az,
-        data->gx, data->gy, data->gz
+        "AX:%d.%02d AY:%d.%02d AZ:%d.%02d "
+        "GX:%d.%02d GY:%d.%02d GZ:%d.%02d\r\n",
+
+        ax_i / 100, abs(ax_i % 100),
+        ay_i / 100, abs(ay_i % 100),
+        az_i / 100, abs(az_i % 100),
+
+        gx_i / 100, abs(gx_i % 100),
+        gy_i / 100, abs(gy_i % 100),
+        gz_i / 100, abs(gz_i % 100)
     );
 
-    lora.SendData((uint8_t*)buf, len);
+//    lora.SendData((uint8_t*)buf, len);
+	lora.SendData((uint8_t*)msg, strlen(msg));
+
 }

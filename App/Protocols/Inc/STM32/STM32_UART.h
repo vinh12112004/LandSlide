@@ -10,7 +10,7 @@
 
 #include "main.h"
 
-#include "Interface/IUART.h"
+#include "IUART.h"
 
 class STM32_UART : public IUART {
 private:

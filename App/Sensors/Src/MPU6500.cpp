@@ -6,7 +6,7 @@
  */
 
 
-#include "../Sensors/Inc/MPU6500.h"
+#include "MPU6500.h"
 
 MPU6500::MPU6500(ISPI* p_spi, IGPIO* p_csPin) : spi(p_spi), csPin(p_csPin) {
     csPin->Write(true);

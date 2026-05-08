@@ -10,7 +10,7 @@
 
 #include "main.h"
 
-#include "Interface/IGPIO.h"
+#include "IGPIO.h"
 
 class STM32_GPIO : public IGPIO {
 private:

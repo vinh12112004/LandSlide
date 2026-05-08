@@ -8,8 +8,8 @@
 #ifndef SENSORS_INC_AS32_H_
 #define SENSORS_INC_AS32_H_
 
-#include "../../Protocols/Inc/IGPIO.h"
-#include "../../Protocols/Inc/IUART.h"
+#include "IGPIO.h"
+#include "IUART.h"
 
 class AS32 {
 public:

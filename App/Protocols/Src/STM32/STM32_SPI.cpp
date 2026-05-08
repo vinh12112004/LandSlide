@@ -4,7 +4,7 @@
  *  Created on: Apr 28, 2026
  *      Author: vinh
  */
-#include "../Inc/STM32/STM32_SPI.h"
+#include "STM32_SPI.h"
 
 STM32_SPI::STM32_SPI(SPI_HandleTypeDef* h) : hspi(h) {
 }

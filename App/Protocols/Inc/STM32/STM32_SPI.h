@@ -10,7 +10,7 @@
 
 #include "main.h"
 
-#include "Interface/ISPI.h"
+#include "ISPI.h"
 
 class STM32_SPI : public ISPI {
 private:
