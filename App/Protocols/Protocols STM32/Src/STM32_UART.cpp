@@ -16,3 +16,8 @@ void STM32_UART::Send(const uint8_t* data, uint16_t len) {
 bool STM32_UART::Receive(uint8_t* buffer, uint16_t len, uint32_t timeout) {
     return HAL_UART_Receive(huart, buffer, len, timeout) == HAL_OK;
 }
+
+void STM32_UART::ReceiveIT(uint8_t* data, uint16_t len)
+{
+    HAL_UART_Receive_IT(huart, data, len);
+}

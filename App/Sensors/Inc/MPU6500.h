@@ -8,8 +8,8 @@
 #ifndef SENSORS_INC_MPU6500_H_
 #define SENSORS_INC_MPU6500_H_
 
-#include "../../Protocols/Inc/Interface/IGPIO.h"
-#include "../../Protocols/Inc/Interface/ISPI.h"
+#include "IGPIO.h"
+#include "ISPI.h"
 
 /* =========================
  * Self Test Registers
@@ -239,7 +239,7 @@ public:
 
     MPU6500(ISPI* p_spi, IGPIO* p_csPin);
     uint8_t ReadRegister(uint8_t regAddr);
-    bool Init();
+    uint8_t Init();
     AccelData GetAccel();
     GyroData GetGyro();
     void SetGyroRange(GyroRange range);

@@ -49,15 +49,15 @@ void MPU6500::ReadRegisters(uint8_t regAddr, uint8_t* buffer, uint8_t len) {
     csPin->Write(true);
 }
 
-bool MPU6500::Init() {
+uint8_t MPU6500::Init() {
     WriteRegister(PWR_MGMT_1, 0x00);
     WriteRegister(0x6A, 0x10);
     for(volatile int i = 0; i < 10000; i++);
     uint8_t whoami = ReadRegister(WHO_AM_I);
     if (whoami == 0x71 || whoami == 0x73 || whoami == 0x70) {
-        return true;
+        return whoami;
     }
-    return false;
+    return whoami;
 }
 
 MPU6500::AccelData MPU6500::GetAccel() {
