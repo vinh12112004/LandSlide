@@ -20,7 +20,10 @@ public:
     STM32_UART(UART_HandleTypeDef* h);
     void Send(const uint8_t* data, uint16_t len) override;
     bool Receive(uint8_t* buffer, uint16_t len, uint32_t timeout) override;
+    void SendIT(const uint8_t* data, uint16_t len) override;
     void ReceiveIT(uint8_t* data, uint16_t len) override;
+    void SendDMA(const uint8_t* data, uint16_t len) override;
+	void ReceiveDMA(uint8_t* data, uint16_t len) override;
 };
 
 #endif /* PROTOCOLS_INC_STM32_STM32_UART_H_ */

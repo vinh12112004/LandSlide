@@ -14,19 +14,20 @@ ZEDF9K::ZEDF9K(IUART* p_uart)
 
 void ZEDF9K::Init() {
     EnableNavPvtUART1();
-    StartReceive();
+//    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, gps.rxBuffer, GPS_RX_BUFFER_SIZE);
+//    StartReceive();
 }
 
-void ZEDF9K::StartReceive()
-{
-    uart->ReceiveIT(&rxByte, 1);
-}
-
-void ZEDF9K::OnRxByte()
-{
-    ProcessByte(rxByte);
-    StartReceive();
-}
+//void ZEDF9K::StartReceive()
+//{
+//    uart->ReceiveIT(&rxByte, 1);
+//}
+//
+//void ZEDF9K::OnRxByte()
+//{
+//    ProcessByte(rxByte);
+//    StartReceive();
+//}
 
 void ZEDF9K::ResetParser() {
     state = WAIT_SYNC1;
@@ -285,5 +286,28 @@ bool ZEDF9K::IsGpsValid() {
     );
 }
 
+void ZEDF9K::ProcessCircularBuffer(uint16_t currentPos) {
+    if (currentPos != oldPos) {
 
+        if (currentPos > oldPos) {
+            for (uint16_t i = oldPos; i < currentPos; i++) {
+                ProcessByte(rxBuffer[i]);
+            }
+        }
+        else {
+            for (uint16_t i = oldPos; i < GPS_RX_BUFFER_SIZE; i++) {
+                ProcessByte(rxBuffer[i]);
+            }
+            for (uint16_t i = 0; i < currentPos; i++) {
+                ProcessByte(rxBuffer[i]);
+            }
+        }
+
+        oldPos = currentPos; // Cập nhật lại mốc
+    }
+}
+void ZEDF9K::ResetDMAIndex() {
+    oldPos = 0;       // Reset mốc bộ đệm vòng về 0
+    ResetParser();    // Xóa sạch trạng thái kẹt của Parser
+}
 

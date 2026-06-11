@@ -18,6 +18,8 @@ private:
 public:
     STM32_ADC(ADC_HandleTypeDef* h);
     uint16_t Read() override;
+    void ReadDMA(uint16_t* buffer, uint16_t length) override;
+    void StopDMA() override;
 };
 
 #endif /* PROTOCOLS_INC_STM32_STM32_ADC_H_ */

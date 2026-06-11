@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "IUART.h"
-
+#define GPS_RX_BUFFER_SIZE 512
 class ZEDF9K {
 public:
 	struct NavPvtData {
@@ -27,9 +27,12 @@ public:
 	    float pDOP;
 	};
 
+    uint8_t rxBuffer[GPS_RX_BUFFER_SIZE];
+
+
 private:
     IUART* uart;
-    uint8_t rxByte;
+    uint16_t oldPos;
     enum ParseState {
         WAIT_SYNC1,
         WAIT_SYNC2,
@@ -59,6 +62,7 @@ private:
     NavPvtData navData;
     bool navPvtUpdated;
 
+
 private:
     void ResetParser();
     void UpdateChecksum(uint8_t b);
@@ -87,6 +91,9 @@ public:
 
     void StartReceive();
 	void OnRxByte();
+
+	void ProcessCircularBuffer(uint16_t currentPos);
+	void ResetDMAIndex();
 };
 
 #endif /* SENSORS_INC_ZEDF9K_H_ */

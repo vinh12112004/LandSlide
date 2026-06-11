@@ -14,7 +14,10 @@ class IUART {
 public:
     virtual void Send(const uint8_t* data, uint16_t len) = 0;
     virtual bool Receive(uint8_t* buffer, uint16_t len, uint32_t timeout) = 0;
+    virtual void SendIT(const uint8_t* data, uint16_t len) = 0;
     virtual void ReceiveIT(uint8_t* data, uint16_t len) = 0;
+    virtual void SendDMA(const uint8_t* data, uint16_t len) = 0;
+	virtual void ReceiveDMA(uint8_t* data, uint16_t len) = 0;
     virtual ~IUART() {}
 };
 

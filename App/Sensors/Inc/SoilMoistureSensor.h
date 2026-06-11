@@ -20,6 +20,11 @@ private:
     float vref;
     uint16_t adcMax;
 
+    uint16_t dmaBuffer[10];
+
+    uint16_t rawAvg;
+	float voltage;
+	float moisturePercent;
 public:
     SoilMoistureSensor(
         IADC* p_adc,
@@ -36,6 +41,14 @@ public:
     float ReadMoisturePercent();
 
     void SetCalibration(uint16_t dry, uint16_t wet);
+
+    void TriggerDMARead();
+    void ProcessDMAData();
+
+    float GetMoisturePercent() const { return moisturePercent; }
+	float GetVoltage() const { return voltage; }
+	uint16_t GetRawAverage() const { return rawAvg; }
+
 };
 
 #endif /* SENSORS_INC_SOILMOISTURESENSOR_H_ */

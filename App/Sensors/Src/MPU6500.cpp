@@ -49,6 +49,36 @@ void MPU6500::ReadRegisters(uint8_t regAddr, uint8_t* buffer, uint8_t len) {
     csPin->Write(true);
 }
 
+void MPU6500::TriggerDMARead() {
+    dmaTxBuf[0] = ACCEL_XOUT_H | 0x80;
+
+    for (int i = 1; i < 15; i++) {
+        dmaTxBuf[i] = 0x00;
+    }
+
+    csPin->Write(false);
+
+    spi->ReadWriteDMA(dmaTxBuf, dmaRxBuf, 15);
+}
+
+void MPU6500::EndDMARead() {
+    csPin->Write(true);
+}
+
+void MPU6500::GetDMAData(AccelData* accel, GyroData* gyro) {
+    if (accel != nullptr) {
+        accel->x = (int16_t)((dmaRxBuf[1] << 8) | dmaRxBuf[2]);
+        accel->y = (int16_t)((dmaRxBuf[3] << 8) | dmaRxBuf[4]);
+        accel->z = (int16_t)((dmaRxBuf[5] << 8) | dmaRxBuf[6]);
+    }
+
+    if (gyro != nullptr) {
+        gyro->x = (int16_t)((dmaRxBuf[9] << 8) | dmaRxBuf[10]);
+        gyro->y = (int16_t)((dmaRxBuf[11] << 8) | dmaRxBuf[12]);
+        gyro->z = (int16_t)((dmaRxBuf[13] << 8) | dmaRxBuf[14]);
+    }
+}
+
 uint8_t MPU6500::Init() {
     WriteRegister(PWR_MGMT_1, 0x00);
     WriteRegister(0x6A, 0x10);
@@ -123,3 +153,68 @@ void MPU6500::EnableDataReadyInterrupt()
     WriteRegister(INT_PIN_CFG, 0x00);
     WriteRegister(INT_ENABLE, 0x01);
 }
+bool MPU6500::ProcessSensorMath(ProcessedData* outData) {
+    AccelData acc;
+    GyroData gyro;
+    GetDMAData(&acc, &gyro);
+    if (!isCalibrated) {
+        calibSumX += acc.x;
+        calibSumY += acc.y;
+        calibSumZ += acc.z;
+
+        gyroCalibSumX += gyro.x;
+        gyroCalibSumY += gyro.y;
+        gyroCalibSumZ += gyro.z;
+
+        calibCount++;
+
+        if (calibCount >= 50) {
+            accOffsetX = calibSumX / 1000.0f;
+            accOffsetY = calibSumY / 1000.0f;
+            accOffsetZ = (calibSumZ / 1000.0f) - 16384.0f;
+
+            gyroOffsetX = gyroCalibSumX / 1000.0f;
+            gyroOffsetY = gyroCalibSumY / 1000.0f;
+            gyroOffsetZ = gyroCalibSumZ / 1000.0f;
+
+            isCalibrated = true;
+        }
+        return false;
+    }
+    float ax = (acc.x - accOffsetX) / 16384.0f;
+    float ay = (acc.y - accOffsetY) / 16384.0f;
+    float az = (acc.z - accOffsetZ) / 16384.0f;
+
+    float gx = (gyro.x - gyroOffsetX) / 131.0f;
+    float gy = (gyro.y - gyroOffsetY) / 131.0f;
+    float gz = (gyro.z - gyroOffsetZ) / 131.0f;
+
+    float gyroMag = sqrtf(gx*gx + gy*gy + gz*gz);
+    float alpha = 0.02f;
+
+    if (gyroMag < 5.0f) {
+        ax_g += alpha * (ax - ax_g);
+        ay_g += alpha * (ay - ay_g);
+        az_g += alpha * (az - az_g);
+    }
+
+    float ax_v = ax - ax_g;
+    float ay_v = ay - ay_g;
+    float az_v = az - az_g;
+
+    float vib_inst = sqrtf(ax_v*ax_v + ay_v*ay_v + az_v*az_v) * 9.81f;
+
+    if (gyroMag > 20.0f) {
+        vib_inst *= 0.3f;
+    }
+
+    vib_f = vib_f * 0.9f + vib_inst * 0.1f;
+
+    if (outData != nullptr) {
+        outData->tilt = atan2f(sqrtf(ax*ax + ay*ay), az) * 180.0f / 3.14159265f;
+        outData->vib = vib_f;
+    }
+
+    return true;
+}
+

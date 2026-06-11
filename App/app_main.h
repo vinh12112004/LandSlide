@@ -23,28 +23,30 @@ typedef struct
     float soil_m;
 } SoilData_t;
 
+#pragma pack(push, 1)
 typedef struct __attribute__((packed))
 {
-    uint16_t header;
+    uint16_t header;       // 2 bytes
+    char deviceId[16];     // 16 bytes
+    uint16_t sensorMask;   // 2 bytes
 
-    char deviceId[16];
-    uint16_t sensorMask;
+    float tilt;            // 4 bytes
+    float vib;             // 4 bytes
+    float soil_m;          // 4 bytes
 
-    float tilt;
-    float vib;
+    int32_t lat;           // 4 bytes (ĐỔI TỪ double)
+    int32_t lon;           // 4 bytes (ĐỔI TỪ double)
+    float hMSL;            // 4 bytes
+    float hAcc;            // 4 bytes
+    float vAcc;            // 4 bytes
+    float pDOP;            // 4 bytes
 
-    float soil_m;
+    uint8_t fixType;       // 1 byte
+    uint8_t numSV;         // 1 byte
+    uint8_t checksum;      // 1 byte
+} PacketData_t;            // TỔNG CỘNG ĐÚNG 59 BYTES
+#pragma pack(pop)
 
-    double lat;
-	double lon;
-	float hMSL;
-	float hAcc;
-	float vAcc;
-	float pDOP;
-
-	uint8_t fixType;
-	uint8_t numSV;
-} PacketData_t;
 #define PACKET_HEADER 0xAA55
 #define HAS_TILT  0x01
 #define HAS_VIB   0x02
@@ -57,6 +59,9 @@ void IMU_Process(void);
 void SOIL_Process();
 void LoRa_Process();
 void GPS_Process();
+void IMU_Trigger_DMA_Read(void);
+void SOIL_Trigger_DMA(void);
+void App_GPS_Init(void);
 #ifdef __cplusplus
 }
 #endif

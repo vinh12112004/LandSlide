@@ -19,6 +19,7 @@ private:
 public:
     STM32_SPI(SPI_HandleTypeDef* h);
     void ReadWrite(const uint8_t* txData, uint8_t* rxData, uint16_t size) override;
+    void ReadWriteDMA(uint8_t* txData, uint8_t* rxData, uint16_t size) override;
 };
 
 #endif // STM32_SPI_H

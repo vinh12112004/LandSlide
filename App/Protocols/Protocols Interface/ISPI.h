@@ -13,6 +13,7 @@
 class ISPI {
 public:
 	virtual void ReadWrite(const uint8_t* txData, uint8_t* rxData, uint16_t size) = 0;
+	virtual void ReadWriteDMA(uint8_t* txData, uint8_t* rxData, uint16_t size) = 0;
 	virtual ~ISPI() {}
 };
 

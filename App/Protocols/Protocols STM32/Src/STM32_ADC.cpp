@@ -21,4 +21,11 @@ uint16_t STM32_ADC::Read() {
     return value;
 }
 
+void STM32_ADC::ReadDMA(uint16_t* buffer, uint16_t length) {
+    HAL_ADC_Start_DMA(hadc, (uint32_t*)buffer, length);
+}
+
+void STM32_ADC::StopDMA() {
+    HAL_ADC_Stop_DMA(hadc);
+}
 

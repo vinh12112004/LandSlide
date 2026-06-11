@@ -13,6 +13,8 @@
 class IADC {
 public:
     virtual uint16_t Read() = 0;
+    virtual void ReadDMA(uint16_t* buffer, uint16_t length) = 0;
+	virtual void StopDMA() = 0;
     virtual ~IADC() {}
 };
 

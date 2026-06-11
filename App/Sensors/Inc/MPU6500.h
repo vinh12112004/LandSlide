@@ -10,6 +10,7 @@
 
 #include "IGPIO.h"
 #include "ISPI.h"
+#include <math.h>
 
 /* =========================
  * Self Test Registers
@@ -222,9 +223,33 @@ private:
     ISPI* spi;
     IGPIO* csPin;
 
+    uint8_t dmaTxBuf[15];
+	uint8_t dmaRxBuf[15];
+
     void WriteRegister(uint8_t regAddr, uint8_t data);
     void ReadRegisters(uint8_t regAddr, uint8_t* buffer, uint8_t len);
 
+    bool isCalibrated = false;
+	uint16_t calibCount = 0;
+
+    int64_t calibSumX = 0;
+	int64_t calibSumY = 0;
+	int64_t calibSumZ = 0;
+	float accOffsetX = 0.0f;
+	float accOffsetY = 0.0f;
+	float accOffsetZ = 0.0f;
+
+	int64_t gyroCalibSumX = 0;
+	int64_t gyroCalibSumY = 0;
+	int64_t gyroCalibSumZ = 0;
+	float gyroOffsetX = 0.0f;
+	float gyroOffsetY = 0.0f;
+	float gyroOffsetZ = 0.0f;
+
+	float ax_g = 0.0f;
+	float ay_g = 0.0f;
+	float az_g = 1.0f;
+	float vib_f = 0.0f;
 public:
     struct AccelData {
         int16_t x;
@@ -236,7 +261,10 @@ public:
         int16_t y;
         int16_t z;
     };
-
+    struct ProcessedData {
+		float tilt;
+		float vib;
+	};
     MPU6500(ISPI* p_spi, IGPIO* p_csPin);
     uint8_t ReadRegister(uint8_t regAddr);
     uint8_t Init();
@@ -249,6 +277,11 @@ public:
     void SetSampleRate(uint16_t rateHz);
     void EnableDataReadyInterrupt();
 
+    void TriggerDMARead();
+	void EndDMARead();
+	void GetDMAData(AccelData* accel, GyroData* gyro);
+
+	bool ProcessSensorMath(ProcessedData* outData);
 };
 
 #endif /* SENSORS_INC_MPU6500_H_ */

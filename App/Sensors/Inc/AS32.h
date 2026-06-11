@@ -26,6 +26,9 @@ private:
     IGPIO* aux;
     IUART* uart;
 
+    uint8_t txBuffer[64];
+	bool isTransmitting = false;
+
     void WaitAuxHigh();
 
 public:
@@ -33,6 +36,9 @@ public:
     void Init();
     void SetMode(Mode mode);
     void SendData(const uint8_t* data, uint16_t len);
+    bool SendDataDMA(const uint8_t* data, uint16_t len);
+    bool SendDataIT(const uint8_t* data, uint16_t len);
+	void OnTxComplete();
 };
 
 #endif /* SENSORS_INC_AS32_H_ */

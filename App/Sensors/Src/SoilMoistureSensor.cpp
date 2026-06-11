@@ -18,6 +18,9 @@ SoilMoistureSensor::SoilMoistureSensor(
     wetValue(wet),
     vref(referenceVoltage),
     adcMax(adcResolution) {
+	for(int i = 0; i < 10; i++) {
+	        dmaBuffer[i] = 0;
+	    }
 }
 
 uint16_t SoilMoistureSensor::ReadRaw() {
@@ -57,4 +60,33 @@ void SoilMoistureSensor::SetCalibration(uint16_t dry, uint16_t wet) {
     wetValue = wet;
 }
 
+void SoilMoistureSensor::TriggerDMARead() {
+    adc->ReadDMA(dmaBuffer, 10);
+}
+void SoilMoistureSensor::ProcessDMAData() {
+    uint32_t sum = 0;
+
+    for (uint8_t i = 0; i < 10; i++) {
+        sum += dmaBuffer[i];
+    }
+
+    rawAvg = sum / 10;
+    voltage = ((float)rawAvg * vref) / adcMax;
+
+//    if (rawAvg >= dryValue) {
+//        moisturePercent = 0.0f;
+//    } else if (rawAvg <= wetValue) {
+//        moisturePercent = 100.0f;
+//    } else {
+//        moisturePercent = ((float)(dryValue - rawAvg) / (dryValue - wetValue)) * 100.0f;
+//    }
+    if (rawAvg <= dryValue) {
+		moisturePercent = 0.0f;
+	} else if (rawAvg >= wetValue) {
+		moisturePercent = 100.0f;
+	} else {
+		// Công thức tính tỷ lệ phần trăm thuận
+		moisturePercent = ((float)(rawAvg - dryValue) / (wetValue - dryValue)) * 100.0f;
+	}
+}
 

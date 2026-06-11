@@ -16,8 +16,17 @@ void STM32_UART::Send(const uint8_t* data, uint16_t len) {
 bool STM32_UART::Receive(uint8_t* buffer, uint16_t len, uint32_t timeout) {
     return HAL_UART_Receive(huart, buffer, len, timeout) == HAL_OK;
 }
-
+void STM32_UART::SendIT(const uint8_t* data, uint16_t len) {
+    HAL_UART_Transmit_IT(huart, (uint8_t*)data, len);
+}
 void STM32_UART::ReceiveIT(uint8_t* data, uint16_t len)
 {
     HAL_UART_Receive_IT(huart, data, len);
+}
+void STM32_UART::SendDMA(const uint8_t* data, uint16_t len) {
+    HAL_UART_Transmit_DMA(huart, (uint8_t*)data, len);
+}
+
+void STM32_UART::ReceiveDMA(uint8_t* data, uint16_t len) {
+    HAL_UART_Receive_DMA(huart, data, len);
 }
